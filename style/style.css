@@ -1,0 +1,14 @@
+.bg {
+  fill: #A5AAAB;
+}
+
+
+
+.pie {
+  stroke: none;
+}
+
+.pie:hover {
+  stroke: white;
+  stroke-width: 6;
+}
