@@ -25,14 +25,15 @@ let margin = {
   right: 25
 };
 
-let pieCategory = ["Top", "Bottom", "Shoes", "Demographic"];
+let pieCategory = ["Top", "Bottom", "Shoes", "Group"];
+let groupColors = ["#444444", "#888888", "#CCCCCC"];
 
 let piePadding = 10;
 let pieDiameter = ((HEIGHT - margin.bottom - margin.top) -
                       ((pieCategory.length-1)*piePadding)) / pieCategory.length;
 
 let topPie = svg.append("g")
-  .attr("class", "pieGroupTop")
+  .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
       return "translate(" + (pieDiameter/2 + margin.left) + ", " +
               (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 0 ) +
@@ -40,7 +41,7 @@ let topPie = svg.append("g")
   });
 
 let bottomPie = svg.append("g")
-  .attr("class", "pieGroupBot")
+  .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
       return "translate(" + (pieDiameter/2 + margin.left) + ", " +
               (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 1 ) +
@@ -48,7 +49,7 @@ let bottomPie = svg.append("g")
   });
 
 let shoePie = svg.append("g")
-  .attr("class", "pieGroupShoe")
+  .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
       return "translate(" + (pieDiameter/2 + margin.left) + ", " +
               (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 2 ) +
@@ -56,19 +57,16 @@ let shoePie = svg.append("g")
   });
 
 let groupPie = svg.append("g")
-  .attr("class", "pieGroupGroup")
+  .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
       return "translate(" + (pieDiameter/2 + margin.left) + ", " +
               (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 3 ) +
               ")";
   });
 
-// pieGroups.append("circle")
-//   .attr("class", "pie")
-//   .attr("r", pieDiameter/2)
-//   .on("click", (d, i) => {
-//     console.log(d);
-//   });
+d3.selectAll(".pieGroup").append("circle")
+  .attr("class", "piebg")
+  .attr("r", pieDiameter/2 + 10);
 
 readData();
 
@@ -106,7 +104,7 @@ function createColorMap() {
   colors.forEach((el) => {
     colorMap.set(el.color, el.hex);
   });
-  
+
   drawPies();
 }
 
@@ -136,7 +134,7 @@ function drawPies() {
 
   let topCountsArr = [];
   Object.keys(topCounts).forEach(el => {
-    topCountsArr.push({color: el, count: topCounts[el]});
+    topCountsArr.push({value: el, count: topCounts[el], section: pieCategory[0]});
   });
 
 
@@ -151,7 +149,7 @@ function drawPies() {
 
   let botCountsArr = [];
   Object.keys(botCounts).forEach(el => {
-    botCountsArr.push({color: el, count: botCounts[el]});
+    botCountsArr.push({value: el, count: botCounts[el], section: pieCategory[1]});
   });
 
   // filter data for shoe pie
@@ -165,7 +163,7 @@ function drawPies() {
 
   let shoeCountsArr = [];
   Object.keys(shoeCounts).forEach(el => {
-    shoeCountsArr.push({color: el, count: shoeCounts[el]});
+    shoeCountsArr.push({value: el, count: shoeCounts[el], section: pieCategory[2]});
   });
 
   // filter data for group pie
@@ -179,7 +177,7 @@ function drawPies() {
 
   let groupCountsArr = [];
   Object.keys(groupCounts).forEach(el => {
-    groupCountsArr.push({color: el, count: groupCounts[el]});
+    groupCountsArr.push({value: el, count: groupCounts[el], section: pieCategory[3]});
   });
 
   /*
@@ -193,7 +191,7 @@ function drawPies() {
     .attr("class", "arc")
     .attr("d", arc)
     .style("fill", (d) => {
-      return colorMap.get(d.data.color);
+      return colorMap.get(d.data.value);
     });
 
   // draw Bottom pie
@@ -203,7 +201,7 @@ function drawPies() {
     .attr("class", "arc")
     .attr("d", arc)
     .style("fill", (d) => {
-      return colorMap.get(d.data.color);
+      return colorMap.get(d.data.value);
     });
 
 
@@ -214,10 +212,24 @@ function drawPies() {
     .attr("class", "arc")
     .attr("d", arc)
     .style("fill", (d) => {
-      return colorMap.get(d.data.color);
+      return colorMap.get(d.data.value);
     });
 
   // draw Group pie
+  groupPie.selectAll(".arc")
+    .data(arcs(groupCountsArr))
+  .enter().append("path")
+    .attr("class", "arc")
+    .attr("d", arc)
+    .style("fill", (d, i) => {
+      return groupColors[i];
+    });
 
+  d3.selectAll(".arc")
+    .on("click", (d) => {
+      console.log((d.data.value +
+        (d.data.section !== pieCategory[3] ? (" " + colorMap.get(d.data.value)) :
+                                              "")), d.data.count);
+    });
 
 }
