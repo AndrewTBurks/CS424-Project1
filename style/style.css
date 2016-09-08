@@ -4,11 +4,11 @@
 
 
 
-.pie {
+.arc {
   stroke: none;
 }
 
-.pie:hover {
+.arc:hover {
   stroke: white;
-  stroke-width: 6;
+  stroke-width: 2;
 }
