@@ -3,7 +3,8 @@
 }
 
 .piebg {
-  fill: #A5A5B5;
+  /*fill: #A5A5B5;*/
+  fill: white;
 }
 
 .arc {
