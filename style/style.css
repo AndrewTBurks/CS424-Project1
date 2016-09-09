@@ -55,6 +55,7 @@ body {
   content: "\25BC";
   position: absolute;
   text-align: center;
+  pointer-events: none;
 }
 
 /* Style northward tooltips differently */
