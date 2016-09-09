@@ -2,7 +2,7 @@ const DATA_FILE = "./csv/data_2016-9-6.csv";
 const COLOR_FILE = "./csv/colors_2016-9-6.csv";
 
 let WIDTH = 1200,
-    HEIGHT = 650;
+  HEIGHT = 650;
 
 let data = [];
 let colors = [];
@@ -29,55 +29,55 @@ let filters = {
 
 let pieCategory = ["Top", "Bottom", "Shoes", "Group"];
 let groupColors = {
-  "Me": "#444444",
-  "EVL": "#888888",
-  "Other": "#CCCCCC"
+  Me: "#444444",
+  EVL: "#888888",
+  Other: "#CCCCCC"
 };
 
 let piePadding = 10;
 let pieDiameter = ((HEIGHT - margin.bottom - margin.top) -
-                      ((pieCategory.length-1)*piePadding)) / pieCategory.length;
+                      ((pieCategory.length - 1) * piePadding)) / pieCategory.length;
 
 svg.append("rect")
   .attr("class", "bg")
-  .attr("width", pieDiameter + margin.left*2)
+  .attr("width", pieDiameter + margin.left * 2)
   .attr("height", "100%");
 
 let topPie = svg.append("g")
   .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
-      return "translate(" + (pieDiameter/2 + margin.left) + ", " +
-              (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 0 ) +
+    return "translate(" + (pieDiameter / 2 + margin.left) + ", " +
+              (margin.top + pieDiameter / 2 + (pieDiameter + piePadding) * 0) +
               ")";
   });
 
 let bottomPie = svg.append("g")
   .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
-      return "translate(" + (pieDiameter/2 + margin.left) + ", " +
-              (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 1 ) +
+    return "translate(" + (pieDiameter / 2 + margin.left) + ", " +
+              (margin.top + pieDiameter / 2 + (pieDiameter + piePadding) * 1) +
               ")";
   });
 
 let shoePie = svg.append("g")
   .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
-      return "translate(" + (pieDiameter/2 + margin.left) + ", " +
-              (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 2 ) +
+    return "translate(" + (pieDiameter / 2 + margin.left) + ", " +
+              (margin.top + pieDiameter / 2 + (pieDiameter + piePadding) * 2) +
               ")";
   });
 
 let groupPie = svg.append("g")
   .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
-      return "translate(" + (pieDiameter/2 + margin.left) + ", " +
-              (margin.top + pieDiameter/2 + (pieDiameter + piePadding) * 3 ) +
+    return "translate(" + (pieDiameter / 2 + margin.left) + ", " +
+              (margin.top + pieDiameter / 2 + (pieDiameter + piePadding) * 3) +
               ")";
   });
 
 d3.selectAll(".pieGroup").append("circle")
   .attr("class", "piebg")
-  .attr("r", pieDiameter/2 + 5);
+  .attr("r", pieDiameter / 2 + 5);
 
 // create filter clear button
 svg.append("circle")
@@ -102,7 +102,7 @@ svg.append("line")
   .style("stroke", "lightgray")
   .style("stroke-width", 3);
 
-  svg.append("line")
+svg.append("line")
     .attr("class", "clearFiltersLine")
     .attr("x1", margin.left + pieDiameter - 4)
     .attr("x2", margin.left + pieDiameter + 4)
@@ -113,7 +113,7 @@ svg.append("line")
 // create tooltip
 
 /* Initialize tooltip */
-tip = d3.tip().attr('class', 'd3-tip')
+let tip = d3.tip().attr('class', 'd3-tip')
   .html(function(d) {
     // var color = colorMap.get(d.data.value);
     var color = "#C5C5D5";
@@ -122,7 +122,7 @@ tip = d3.tip().attr('class', 'd3-tip')
   });
 
 /* Invoke the tip in the context of your visualization */
-svg.call(tip)
+svg.call(tip);
 
 readData();
 
@@ -132,7 +132,7 @@ function readData() {
       data.push(d);
     })
     .get((error, rows) => {
-      if(error) {
+      if (error) {
         alert(error);
       }
 
@@ -146,7 +146,7 @@ function readColors() {
       colors.push(d);
     })
     .get((error, rows) => {
-      if(error) {
+      if (error) {
         alert(error);
       }
 
@@ -167,11 +167,11 @@ function createColorMap() {
 
 // prepare full data for pies (without any filters)
 function drawContextPies() {
-    let arc = d3.arc()
-      .innerRadius(pieDiameter/2 - 2)
-      .outerRadius(pieDiameter/2 + 3);
+  let arc = d3.arc()
+      .innerRadius(pieDiameter / 2 - 2)
+      .outerRadius(pieDiameter / 2 + 3);
 
-    let arcs = d3.pie()
+  let arcs = d3.pie()
       .value((d) => {
         return d.count;
       })
@@ -182,82 +182,82 @@ function drawContextPies() {
     */
 
     // filter data for top pie
-    let topCounts = {};
-    data.forEach(el => {
-      if(!topCounts[el.shirt0]) {
-        topCounts[el.shirt0] = 0;
-      }
-      topCounts[el.shirt0] += 1;
-    });
+  let topCounts = {};
+  data.forEach(el => {
+    if (!topCounts[el.shirt0]) {
+      topCounts[el.shirt0] = 0;
+    }
+    topCounts[el.shirt0] += 1;
+  });
 
-    let topCountsArr = [];
-    Object.keys(topCounts).forEach(el => {
-      topCountsArr.push({
-          value: el,
-          count: topCounts[el],
-          section: pieCategory[0],
-        });
+  let topCountsArr = [];
+  Object.keys(topCounts).forEach(el => {
+    topCountsArr.push({
+      value: el,
+      count: topCounts[el],
+      section: pieCategory[0]
     });
+  });
 
 
     // filter data for bot pie
-    let botCounts = {};
-    data.forEach(el => {
-      if(!botCounts[el.pants0]) {
-        botCounts[el.pants0] = 0;
-      }
-      botCounts[el.pants0] += 1;
-    });
+  let botCounts = {};
+  data.forEach(el => {
+    if (!botCounts[el.pants0]) {
+      botCounts[el.pants0] = 0;
+    }
+    botCounts[el.pants0] += 1;
+  });
 
-    let botCountsArr = [];
-    Object.keys(botCounts).forEach(el => {
-      botCountsArr.push({
-        value: el,
-        count: botCounts[el],
-        section: pieCategory[1],
-      });
+  let botCountsArr = [];
+  Object.keys(botCounts).forEach(el => {
+    botCountsArr.push({
+      value: el,
+      count: botCounts[el],
+      section: pieCategory[1]
     });
+  });
 
     // filter data for shoe pie
-    let shoeCounts = {};
-    data.forEach(el => {
-      if(!shoeCounts[el.shoes0]) {
-        shoeCounts[el.shoes0] = 0;
-      }
-      shoeCounts[el.shoes0] += 1;
-    });
+  let shoeCounts = {};
+  data.forEach(el => {
+    if (!shoeCounts[el.shoes0]) {
+      shoeCounts[el.shoes0] = 0;
+    }
+    shoeCounts[el.shoes0] += 1;
+  });
 
-    let shoeCountsArr = [];
-    Object.keys(shoeCounts).forEach(el => {
-      shoeCountsArr.push({
-        value: el,
-        count: shoeCounts[el],
-        section: pieCategory[2],
-      });
+  let shoeCountsArr = [];
+  Object.keys(shoeCounts).forEach(el => {
+    shoeCountsArr.push({
+      value: el,
+      count: shoeCounts[el],
+      section: pieCategory[2]
     });
+  });
 
     // filter data for group pie
-    let groupCounts = {};
-    data.forEach(el => {
-      if(!groupCounts[el.group]) {
-        groupCounts[el.group] = 0;
-      }
-      groupCounts[el.group] += 1;
-    });
+  let groupCounts = {};
+  data.forEach(el => {
+    if (!groupCounts[el.group]) {
+      groupCounts[el.group] = 0;
+    }
+    groupCounts[el.group] += 1;
+  });
 
-    let groupCountsArr = [];
-    Object.keys(groupCounts).forEach(el => {
-      groupCountsArr.push({
-        value: el,
-        count: groupCounts[el],
-        section: pieCategory[3],
-      });
+  let groupCountsArr = [];
+  Object.keys(groupCounts).forEach(el => {
+    groupCountsArr.push({
+      value: el,
+      count: groupCounts[el],
+      section: pieCategory[3]
     });
+  });
 
     /* Draw Outer Pies*/
 
     // draw Top pie
-    topPie.selectAll(".outerArc")
+  topPie.selectAll(".outerArc")
       .data(arcs(topCountsArr))
     .enter().append("path")
       .attr("class", "outerArc")
@@ -267,7 +267,7 @@ function drawContextPies() {
       });
 
     // draw Bottom pie
-    bottomPie.selectAll(".outerArc")
+  bottomPie.selectAll(".outerArc")
       .data(arcs(botCountsArr))
     .enter().append("path")
       .attr("class", "outerArc")
@@ -278,7 +278,7 @@ function drawContextPies() {
 
 
     // draw Shoe pie
-    shoePie.selectAll(".outerArc")
+  shoePie.selectAll(".outerArc")
       .data(arcs(shoeCountsArr))
     .enter().append("path")
       .attr("class", "outerArc")
@@ -288,7 +288,7 @@ function drawContextPies() {
       });
 
     // draw Group pie
-    groupPie.selectAll(".outerArc")
+  groupPie.selectAll(".outerArc")
       .data(arcs(groupCountsArr))
     .enter().append("path")
       .attr("class", "outerArc")
@@ -302,8 +302,8 @@ function drawContextPies() {
 
 function drawPies() {
   let arc = d3.arc()
-    .innerRadius(pieDiameter/4)
-    .outerRadius(pieDiameter/2 - 10);
+    .innerRadius(pieDiameter / 4)
+    .outerRadius(pieDiameter / 2 - 10);
 
   let arcs = d3.pie()
     .value((d) => {
@@ -318,20 +318,20 @@ function drawPies() {
   // filter data for top pie
   let topCounts = {};
   data.forEach(el => {
-    if(!topCounts[el.shirt0]) {
+    if (!topCounts[el.shirt0]) {
       topCounts[el.shirt0] = {filter: 0, noFilter: 0};
     }
 
-    if(dataFitsFilter(el)) {
+    if (dataFitsFilter(el)) {
       topCounts[el.shirt0].filter += 1;
     } else {
       topCounts[el.shirt0].noFilter += 1;
     }
-  })
+  });
 
   let topCountsArr = [];
   Object.keys(topCounts).forEach(el => {
-    if(topCounts[el].filter > 0) {
+    if (topCounts[el].filter > 0) {
       topCountsArr.push({
         value: el,
         count: topCounts[el].filter,
@@ -354,20 +354,20 @@ function drawPies() {
   // filter data for bot pie
   let botCounts = {};
   data.forEach(el => {
-    if(!botCounts[el.pants0]) {
+    if (!botCounts[el.pants0]) {
       botCounts[el.pants0] = {filter: 0, noFilter: 0};
     }
 
-    if(dataFitsFilter(el)) {
+    if (dataFitsFilter(el)) {
       botCounts[el.pants0].filter += 1;
     } else {
       botCounts[el.pants0].noFilter += 1;
     }
-  })
+  });
 
   let botCountsArr = [];
   Object.keys(botCounts).forEach(el => {
-    if(botCounts[el].filter > 0){
+    if (botCounts[el].filter > 0) {
       botCountsArr.push({
         value: el,
         count: botCounts[el].filter,
@@ -389,20 +389,20 @@ function drawPies() {
   // filter data for shoe pie
   let shoeCounts = {};
   data.forEach(el => {
-    if(!shoeCounts[el.shoes0]) {
+    if (!shoeCounts[el.shoes0]) {
       shoeCounts[el.shoes0] = {filter: 0, noFilter: 0};
     }
 
-    if(dataFitsFilter(el)) {
+    if (dataFitsFilter(el)) {
       shoeCounts[el.shoes0].filter += 1;
     } else {
       shoeCounts[el.shoes0].noFilter += 1;
     }
-  })
+  });
 
   let shoeCountsArr = [];
   Object.keys(shoeCounts).forEach(el => {
-    if(shoeCounts[el].filter > 0) {
+    if (shoeCounts[el].filter > 0) {
       shoeCountsArr.push({
         value: el,
         count: shoeCounts[el].filter,
@@ -425,20 +425,20 @@ function drawPies() {
   // filter data for group pie
   let groupCounts = {};
   data.forEach(el => {
-    if(!groupCounts[el.group]) {
+    if (!groupCounts[el.group]) {
       groupCounts[el.group] = {filter: 0, noFilter: 0};
     }
 
-    if(dataFitsFilter(el)) {
+    if (dataFitsFilter(el)) {
       groupCounts[el.group].filter += 1;
     } else {
       groupCounts[el.group].noFilter += 1;
     }
-  })
+  });
 
   let groupCountsArr = [];
   Object.keys(groupCounts).forEach(el => {
-    if(groupCounts[el].filter > 0) {
+    if (groupCounts[el].filter > 0) {
       groupCountsArr.push({
         value: el,
         count: groupCounts[el].filter,
@@ -464,7 +464,7 @@ function drawPies() {
     .attr("class", "oldArc")
     .transition()
     .duration(250)
-    .style("fill-opacity", 0)
+    .style("fill-opacity", 0);
 
   d3.selectAll(".oldArc").transition().delay(250).remove();
 
@@ -517,34 +517,31 @@ function drawPies() {
   d3.selectAll(".arc")
     .style("stroke-width", function(d, i) {
 
-      if(filters[d.data.section] === d.data.value) {
-        if(d.data.filter) {
-            return 3;
+      if (filters[d.data.section] === d.data.value) {
+        if (d.data.filter) {
+          return 3;
         } else {
           return 2;
         }
       } else {
         return 2;
       }
-
-      return filters[d.data.section] === d.data.value ? 3 : 1;
     })
     .style("stroke", function(d, i) {
-      if(!d.data.filter) {
+      if (!d.data.filter) {
         return colorMap.get(d.data.value);
-      } else if(filters[d.data.section] === d.data.value) {
+      } else if (filters[d.data.section] === d.data.value) {
         return "#A5A5B5";
       } else {
         return "#C5C5D5";
       }
     })
     .on("click", (d) => {
-      if(filters[d.data.section] !== d.data.value) {
+      if (filters[d.data.section] !== d.data.value) {
         filters[d.data.section] = d.data.value;
         // console.log("Filtering " + d.data.section + " by " + d.data.value);
 
-      }
-      else {
+      } else {
         // console.log("Clearing " + d.data.section + " filter");
         filters[d.data.section] = null;
       }
@@ -566,16 +563,16 @@ function drawPies() {
 }
 
 function dataFitsFilter(dataPoint) {
-  if(filters["Top"] && filters["Top"] !== dataPoint.shirt0){
+  if (filters.Top && filters.Top !== dataPoint.shirt0) {
     return false;
   }
-  if(filters["Bottom"] && filters["Bottom"] !== dataPoint.pants0){
+  if (filters.Bottom && filters.Bottom !== dataPoint.pants0) {
     return false;
   }
-  if(filters["Shoes"] && filters["Shoes"] !== dataPoint.shoes0){
+  if (filters.Shoes && filters.Shoes !== dataPoint.shoes0) {
     return false;
   }
-  if(filters["Group"] && filters["Group"] !== dataPoint.group){
+  if (filters.Group && filters.Group !== dataPoint.group) {
     return false;
   }
   return true;
@@ -586,7 +583,7 @@ function filtersPresent() {
 
   pieCategory.forEach((el) => {
 
-    if(filters[el]) {
+    if (filters[el]) {
       hasFilters = true;
     }
   });
@@ -596,7 +593,7 @@ function filtersPresent() {
 
 function updateClearButton() {
 
-  if(!filtersPresent()) {
+  if (!filtersPresent()) {
     d3.select(".clearFilters").transition().duration(250)
       .style("fill", "gray")
       .style("stroke", "lightgray");
@@ -614,7 +611,7 @@ function updateClearButton() {
 }
 
 function clearFilters() {
-  if(filtersPresent()) {
+  if (filtersPresent()) {
     pieCategory.forEach((el) => {
       filters[el] = null;
     });
