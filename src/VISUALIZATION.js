@@ -1,3 +1,8 @@
+
+
+/* global d3 */
+"use strict";
+
 const DATA_FILE = "./csv/data_2016-9-6.csv";
 const COLOR_FILE = "./csv/colors_2016-9-6.csv";
 
@@ -26,16 +31,17 @@ let filters = {
   Shoes: null,
   Group: null
 };
-
+// ["#1f78b4","#e31a1c","#33a02c"]
 let pieCategory = ["Top", "Bottom", "Shoes", "Group"];
 let groupColors = {
-  Me: "#444444",
-  EVL: "#888888",
-  Other: "#CCCCCC"
+  Me: "#1f78b4",
+  EVL: "#e31a1c",
+  Other: "#33a02c"
 };
 
 let piePadding = 10;
-let pieDiameter = ((HEIGHT - margin.bottom - margin.top) -
+let groupGap = 20;
+let pieDiameter = ((HEIGHT - margin.bottom - margin.top - groupGap) -
                       ((pieCategory.length - 1) * piePadding)) / pieCategory.length;
 
 svg.append("rect")
@@ -71,13 +77,47 @@ let groupPie = svg.append("g")
   .attr("class", "pieGroup")
   .attr("transform", (d, i) => {
     return "translate(" + (pieDiameter / 2 + margin.left) + ", " +
-              (margin.top + pieDiameter / 2 + (pieDiameter + piePadding) * 3) +
+              (margin.top + pieDiameter / 2 + groupGap
+              + (pieDiameter + piePadding) * 3) +
               ")";
   });
 
 d3.selectAll(".pieGroup").append("circle")
   .attr("class", "piebg")
   .attr("r", pieDiameter / 2 + 5);
+
+// add icons for pies
+let topPath = "M -10 -15 l 20 0 l 10 10 l -6 6 l -4 -4 l 2 20 l -24 0 l 2 -20" +
+  "l -4 4 l -6 -6 l 10 -10",
+  botPath = "M -10 -15 l 20 0 l 4 30 l -9 2 l -5 -23 l -5 23 l -9 -2 l 4 -30 " +
+  "Z",
+  shoePath = "M -15 -8 l -1 16 l 10 0 l 0 -3 l 5 3 l 17 0 l 0 -4 l -2 -4 " +
+  "l -4 -2 l -13 -6 l -12 0 Z",
+  groupPath = "";
+
+// shirt icons
+topPie.append("path")
+  .attr("class", "topIcon")
+  .attr("d", topPath)
+  .style("stroke", "#C5C5D5")
+  .style("stroke-width", 1)
+  .style("fill", "none");
+
+// pants icons
+bottomPie.append("path")
+  .attr("class", "botIcon")
+  .attr("d", botPath)
+  .style("stroke", "#C5C5D5")
+  .style("stroke-width", 1)
+  .style("fill", "none");
+
+// pants icons
+shoePie.append("path")
+  .attr("class", "shoeIcon")
+  .attr("d", shoePath)
+  .style("stroke", "#C5C5D5")
+  .style("stroke-width", 1)
+  .style("fill", "none");
 
 // create filter clear button
 svg.append("circle")
@@ -113,13 +153,16 @@ svg.append("line")
 // create tooltip
 
 /* Initialize tooltip */
-let tip = d3.tip().attr('class', 'd3-tip')
+let tip = d3.tip ? d3.tip().attr('class', 'd3-tip')
   .html(function(d) {
     // var color = colorMap.get(d.data.value);
     var color = "#C5C5D5";
 
     return "<span style=\'color:" + color + ";stroke:lightgray;\'>" + d.data.value + "</span>: " + d.value;
-  });
+  }) :
+  function() {
+    alert("! d3.tip MISSING ! \nDo you have an internet connection?");
+  };
 
 /* Invoke the tip in the context of your visualization */
 svg.call(tip);
@@ -457,6 +500,13 @@ function drawPies() {
     // }
   });
 
+  var countObjects = {
+    Top: topCounts,
+    Bottom: botCounts,
+    Shoes: shoeCounts,
+    Group: groupCounts
+  };
+
   /*
     Draw Pie Charts
   */
@@ -546,7 +596,6 @@ function drawPies() {
         filters[d.data.section] = null;
       }
 
-
       updateClearButton();
       drawPies();
     })
@@ -559,10 +608,15 @@ function drawPies() {
       return d.data.filter ? 1 : 0.25;
     });
 
+  d3.selectAll(".outerArc")
+    .style("fill-opacity", (d) => {
+      return countObjects[d.data.section][d.data.value].filter > 0 ? 1 : 0.2;
+    });
 
+  updateIcons();
 }
 
-function dataFitsFilter(dataPoint) {
+function dataFitsFilter(dataPoint, section) {
   if (filters.Top && filters.Top !== dataPoint.shirt0) {
     return false;
   }
@@ -608,6 +662,18 @@ function updateClearButton() {
     d3.selectAll(".clearFiltersLine").transition().duration(250)
       .style("stroke", "darkred");
   }
+}
+
+function updateIcons() {
+
+  d3.select(".topIcon")
+    .style("fill", filters.Top === null ? "none" : colorMap.get(filters.Top));
+
+  d3.select(".botIcon")
+    .style("fill", filters.Bottom === null ? "none" : colorMap.get(filters.Bottom));
+
+  d3.select(".shoeIcon")
+    .style("fill", filters.Shoes === null ? "none" : colorMap.get(filters.Shoes));
 }
 
 function clearFilters() {
