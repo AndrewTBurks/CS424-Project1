@@ -36,6 +36,11 @@ body {
   stroke-width: 1;
 }
 
+.dataNodeG rect {
+  stroke: #C5C5D5;
+  stroke-width: 0.5;
+}
+
 /*******************
     d3-tip style
 ********************/

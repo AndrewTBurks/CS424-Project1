@@ -1,5 +1,3 @@
-
-
 /* global d3 */
 "use strict";
 
@@ -49,7 +47,25 @@ let pieDiameter = ((HEIGHT - margin.bottom - margin.top - groupGap) -
 svg.append("rect")
   .attr("class", "bg")
   .attr("width", pieDiameter + margin.left * 2)
-  .attr("height", "100%");
+  .attr("height", HEIGHT);
+
+// draw background for graph
+svg.append("rect")
+  .attr("class", "bg")
+  .attr("width", WIDTH - pieDiameter - margin.left * 2 - 10)
+  .attr("height", HEIGHT)
+  .attr("x", pieDiameter + margin.left * 2 + 10);
+
+var graphGroup = svg.append("g")
+  .attr("class", "graphGroup")
+  .attr("transform", "translate(" + (pieDiameter + margin.left * 2 + 10) + ", 0)");
+
+var graphDim = {
+  left: 15,
+  right: WIDTH - pieDiameter - margin.left * 2 - 25,
+  top: 30,
+  bottom: HEIGHT - 30
+};
 
 // dividing line between top 3 pies and bottom pie (clothes and group)
 
@@ -227,6 +243,8 @@ function createColorMap() {
 
   drawPies();
   drawContextPies();
+
+  drawNodes();
 }
 
 // prepare full data for pies (without any filters)
@@ -637,6 +655,143 @@ function drawPies() {
   updateIcons();
 }
 
+function drawNodes() {
+  var positions = new Array(data.length).fill(0).map((el) => {
+    return {
+      x: randX(),
+      y: randY()
+    };
+  });
+
+  graphGroup.selectAll(".dataNodeG")
+    .data(data)
+  .enter().append("g")
+    .attr("class", "dataNodeG")
+    .attr("transform", (d, i) => {
+      return "translate(" + positions[i].x + ", " + positions[i].y + ")";
+    })
+    .each((d, i, group) => {
+      var thisG = d3.select(group[i]); // there has to be a better way to do this
+
+      var nodeDimension = {
+        x: 32,
+        y: 48
+      };
+
+      // create background group rectangle
+      thisG.append("rect")
+        .attr("class", "nodebg")
+        .attr("width", nodeDimension.x)
+        .attr("height", nodeDimension.y)
+        .attr("x", -nodeDimension.x / 2)
+        .attr("y", -nodeDimension.y / 2)
+        .style("fill", "black")
+        .style("stroke", (d, i) => {
+          return groupColors[d.group];
+        })
+        .style("stroke-width", 2);
+
+      // draw shirt rectangle(s)
+      if (d.shirt0 === d.shirt1) {
+          // create only 1 rectangle
+        thisG.append("rect")
+          .datum(d.shirt0)
+          .attr("width", nodeDimension.x - 6)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", -nodeDimension.y / 2 + 3)
+          .style("fill", colorMap.get(d.shirt0));
+
+      } else {
+          // create main rectangle and small rectangle
+        thisG.append("rect")
+          .datum(d.shirt0)
+          .attr("width", 2 * nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", -nodeDimension.y / 2 + 3)
+          .style("fill", colorMap.get(d.shirt0));
+
+        thisG.append("rect")
+          .datum(d.shirt1)
+          .attr("width", nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 2 * nodeDimension.x / 3)
+          .attr("y", -nodeDimension.y / 2 + 3)
+          .style("fill", colorMap.get(d.shirt1));
+      }
+
+      // draw pants rectangle(s)
+      if (d.pants0 === d.pants1) {
+          // create only 1 rectangle
+        thisG.append("rect")
+          .datum(d.pants0)
+          .attr("width", nodeDimension.x - 6)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", -(nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.pants0));
+
+      } else {
+          // create main rectangle and small rectangle
+        thisG.append("rect")
+          .datum(d.pants0)
+          .attr("width", 2 * nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", -(nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.pants0));
+
+        thisG.append("rect")
+          .datum(d.pants1)
+          .attr("width", nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 2 * nodeDimension.x / 3)
+          .attr("y", -(nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.pants1));
+      }
+
+      // draw shoes rectangle(s)
+      if (d.shoes0 === d.shoes1) {
+          // create only 1 rectangle
+        thisG.append("rect")
+          .datum(d.shoes0)
+          .attr("width", nodeDimension.x - 6)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", (nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.shoes0));
+
+      } else {
+          // create main rectangle and small rectangle
+        thisG.append("rect")
+          .datum(d.shoes0)
+          .attr("width", 2 * nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 3)
+          .attr("y", (nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.shoes0));
+
+        thisG.append("rect")
+          .datum(d.shoes1)
+          .attr("width", nodeDimension.x / 3 - 3)
+          .attr("height", (nodeDimension.y - 6) / 3)
+          .attr("x", -nodeDimension.x / 2 + 2 * nodeDimension.x / 3)
+          .attr("y", (nodeDimension.y - 6) / 6)
+          .style("fill", colorMap.get(d.shoes1));
+      }
+
+    });
+
+  function randX() {
+    return Math.round(Math.random() * (graphDim.right - graphDim.left) + graphDim.left);
+  }
+
+  function randY() {
+    return Math.round(Math.random() * (graphDim.bottom - graphDim.top) + graphDim.top);
+  }
+}
+
 function dataFitsFilter(dataPoint, section) {
   if (filters.Top && filters.Top !== dataPoint.shirt0) {
     return false;
@@ -714,5 +869,4 @@ function clearFilters() {
     drawPies();
     updateClearButton();
   }
-
 }
