@@ -44,10 +44,21 @@ let groupGap = 20;
 let pieDiameter = ((HEIGHT - margin.bottom - margin.top - groupGap) -
                       ((pieCategory.length - 1) * piePadding)) / pieCategory.length;
 
+
+// background rectangle behind pies
 svg.append("rect")
   .attr("class", "bg")
   .attr("width", pieDiameter + margin.left * 2)
   .attr("height", "100%");
+
+// dividing line between top 3 pies and bottom pie (clothes and group)
+
+svg.append("line")
+  .attr("class", "pieDivider")
+  .attr("x1", margin.left - 5)
+  .attr("x2", margin.left + pieDiameter + 5)
+  .attr("y1", margin.top + (5 * piePadding / 2) + (3 * pieDiameter) + (groupGap / 2))
+  .attr("y2", margin.top + (5 * piePadding / 2) + (3 * pieDiameter) + (groupGap / 2));
 
 let topPie = svg.append("g")
   .attr("class", "pieGroup")
@@ -118,6 +129,16 @@ shoePie.append("path")
   .style("stroke", "#C5C5D5")
   .style("stroke-width", 1)
   .style("fill", "none");
+
+groupPie.append("text")
+  .attr("class", "groupIcon")
+  .attr("x", 0)
+  .attr("y", 5)
+  .text("Hello")
+  .style("fill", "black")
+  .style("text-anchor", "middle")
+  .style("font-weight", "bold")
+  .style("pointer-events", "none");
 
 // create filter clear button
 svg.append("circle")
@@ -667,13 +688,21 @@ function updateClearButton() {
 function updateIcons() {
 
   d3.select(".topIcon")
-    .style("fill", filters.Top === null ? "none" : colorMap.get(filters.Top));
+    .style("fill", filters.Top === null ? "none" : colorMap.get(filters.Top))
+    .style("stroke-width", filters.Top === null ? 1 : 2);
 
   d3.select(".botIcon")
-    .style("fill", filters.Bottom === null ? "none" : colorMap.get(filters.Bottom));
+    .style("fill", filters.Bottom === null ? "none" : colorMap.get(filters.Bottom))
+    .style("stroke-width", filters.Bottom === null ? 1 : 2);
 
   d3.select(".shoeIcon")
-    .style("fill", filters.Shoes === null ? "none" : colorMap.get(filters.Shoes));
+    .style("fill", filters.Shoes === null ? "none" : colorMap.get(filters.Shoes))
+    .style("stroke-width", filters.Shoes === null ? 1 : 2);
+
+  d3.select(".groupIcon")
+    .text(filters.Group === null ? "Group" : filters.Group)
+    // .style("opacity", filters.Group === null ? 0 : 1)
+    .style("fill", filters.Group === null ? "gray" : groupColors[filters.Group]);
 }
 
 function clearFilters() {

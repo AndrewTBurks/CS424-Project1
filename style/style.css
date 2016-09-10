@@ -11,6 +11,11 @@ body {
   fill: white;
 }
 
+.pieDivider {
+  stroke: #A5A5B5;
+  stroke-width: 3;
+}
+
 .clearFiltersLine {
   pointer-events: none;
   stroke-width: 3;
