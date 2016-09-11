@@ -8,6 +8,8 @@ let WIDTH = 1200,
   HEIGHT = 650;
 
 let data = [];
+let links = [];
+
 let colors = [];
 let colorMap;
 
@@ -59,6 +61,8 @@ svg.append("rect")
 var graphGroup = svg.append("g")
   .attr("class", "graphGroup")
   .attr("transform", "translate(" + (pieDiameter + margin.left * 2 + 10) + ", 0)");
+
+var linkGroup = graphGroup.append("g");
 
 var graphDim = {
   left: 15,
@@ -209,6 +213,7 @@ readData();
 function readData() {
   d3.csv(DATA_FILE)
     .row((d, i) => {
+      d.id = i;
       data.push(d);
     })
     .get((error, rows) => {
@@ -216,6 +221,7 @@ function readData() {
         alert(error);
       }
 
+      calculateLinks();
       readColors();
     });
 }
@@ -636,6 +642,7 @@ function drawPies() {
       }
 
       updateClearButton();
+      updateGraphOnFilter();
       drawPies();
     })
     .on('mouseover', tip.show)
@@ -783,6 +790,8 @@ function drawNodes() {
 
     });
 
+  createForceLayout();
+
   function randX() {
     return Math.round(Math.random() * (graphDim.right - graphDim.left) + graphDim.left);
   }
@@ -792,7 +801,197 @@ function drawNodes() {
   }
 }
 
-function dataFitsFilter(dataPoint, section) {
+function createForceLayout() {
+  // .attr("width", WIDTH - pieDiameter - margin.left * 2 - 10)
+  // .attr("x", pieDiameter + margin.left * 2 + 10);
+
+  var borderNodeMargin = 10;
+
+  var clampX = d3.scaleLinear()
+    .domain([16 + borderNodeMargin, WIDTH - pieDiameter - margin.left * 2 - 26 - borderNodeMargin])
+    .range([16 + borderNodeMargin, WIDTH - pieDiameter - margin.left * 2 - 26 - borderNodeMargin])
+    .clamp(true);
+
+  var clampY = d3.scaleLinear()
+    .domain([24 + borderNodeMargin, HEIGHT - 24 - borderNodeMargin])
+    .range([24 + borderNodeMargin, HEIGHT - 24 - borderNodeMargin])
+    .clamp(true);
+
+  var node = d3.selectAll(".dataNodeG");
+
+  var link = linkGroup.selectAll(".link")
+    .data(links)
+  .enter().append("line")
+    .attr("class", "link")
+    .style("stroke-width", (d) => {
+      return d.value - 3.5;
+    });
+
+  var simulation = d3.forceSimulation()
+    .force("link", d3.forceLink().id(function(d) {
+      return d.id;
+    }))
+    .force("collision", d3.forceCollide(Math.sqrt(Math.pow(16, 2) + Math.pow(24, 2)) + 5))
+    .force("charge", d3.forceManyBody().strength(-500))
+    .force("center", d3.forceCenter(
+      // (pieDiameter / 2) + margin.left + 5 + (WIDTH / 2),
+      (WIDTH - pieDiameter - margin.left * 2 - 10) / 2,
+      (HEIGHT / 2)
+    ));
+
+  simulation
+    .nodes(data)
+    .on("tick", () => {
+      node
+        .datum((d) => {
+          d.x = clampX(d.x);
+          d.y = clampY(d.y);
+          return d;
+        })
+        .attr("transform", (d) => {
+          return "translate(" + d.x + "," + d.y + ")";
+        });
+
+      link
+        .datum((d) => {
+          d.source.x = clampX(d.source.x);
+          d.source.y = clampY(d.source.y);
+          d.target.x = clampX(d.target.x);
+          d.target.y = clampY(d.target.y);
+
+          return d;
+        })
+        .attr("x1", (d) => {
+          return d.source.x;
+        })
+        .attr("x2", (d) => {
+          return d.target.x;
+        })
+        .attr("y1", (d) => {
+          return d.source.y;
+        })
+        .attr("y2", (d) => {
+          return d.target.y;
+        });
+
+    });
+
+  simulation.force("link")
+      .links(links);
+}
+
+function calculateLinks() {
+  for (var i = 0; i < data.length - 1; i++) {
+    for (var j = i + 1; j < data.length; j++) {
+      let similarity = calculateNodeSimilarity(data[i], data[j]);
+
+      if (similarity > 2) {
+        links.push({
+          source: i,
+          target: j,
+          value: calculateNodeSimilarity(data[i], data[j])
+        });
+      }
+    }// end for(var j ...
+  }// end for(var i ...
+}
+
+function calculateNodeSimilarity(p1, p2) {
+  // calculate similarity between nodes using color at each level
+  let totalSimilarity = 0;
+
+  // compare primary shirt color
+  if (p1.shirt0 === p2.shirt0) {
+    totalSimilarity += 2;
+  } else if (p1.shirt0 === p2.shirt1) {
+    totalSimilarity += 1;
+  } else if (p1.shirt0 === p2.pants0 || p1.shirt0 === p2.shoes0) {
+    totalSimilarity += 0.5;
+  }
+  // else if (p1.shirt0 === p2.pants1 || p1.shirt0 === p2.shoes1) {
+  //   totalSimilarity += 0.5;
+  // }
+
+  // compare secondary shirt color
+  if (p1.shirt1 === p2.shirt1) {
+    totalSimilarity += 1;
+  } else if (p1.shirt1 === p2.shirt0) {
+    totalSimilarity += 1;
+  }
+  // else if (p1.shirt1 === p2.pants0 || p1.shirt1 === p2.shoes0) {
+  //   totalSimilarity += 0.5;
+  // } else if (p1.shirt1 === p2.pants1 || p1.shirt1 === p2.shoes1) {
+  //   totalSimilarity += 0.25;
+  // }
+
+  // compare primary pants color
+  if (p1.pants0 === p2.pants0) {
+    totalSimilarity += 2;
+  } else if (p1.pants0 === p2.pants1) {
+    totalSimilarity += 1;
+  } else if (p1.pants0 === p2.shirt0 || p1.pants0 === p2.shoes0) {
+    totalSimilarity += 0.5;
+  }
+  // else if (p1.pants0 === p2.shirt1 || p1.pants0 === p2.shoes1) {
+  //   totalSimilarity += 0.5;
+  // }
+
+  // compare secondary pants color
+  if (p1.pants1 === p2.pants1) {
+    totalSimilarity += 1;
+  } else if (p1.pants1 === p2.pants0) {
+    totalSimilarity += 1;
+  }
+  // else if (p1.pants1 === p2.shirt0 || p1.pants1 === p2.shoes0) {
+  //   totalSimilarity += 0.5;
+  // } else if (p1.pants1 === p2.shirt1 || p1.pants1 === p2.shoes1) {
+  //   totalSimilarity += 0.25;
+  // }
+
+  // compare primary shoes color
+  if (p1.shoes0 === p2.shoes0) {
+    totalSimilarity += 2;
+  } else if (p1.shoes0 === p2.shoes1) {
+    totalSimilarity += 1;
+  } else if (p1.shoes0 === p2.shirt0 || p1.shoes0 === p2.pants0) {
+    totalSimilarity += 0.5;
+  }
+  // else if (p1.shoes0 === p2.shirt1 || p1.shoes0 === p2.pants1) {
+  //   totalSimilarity += 0.5;
+  // }
+
+  // compare secondary shoes color
+  if (p1.shoes1 === p2.shoes1) {
+    totalSimilarity += 1;
+  } else if (p1.shoes1 === p2.shoes0) {
+    totalSimilarity += 1;
+  }
+  // else if (p1.shoes1 === p2.shirt0 || p1.shoes1 === p2.pants0) {
+  //   totalSimilarity += 0.5;
+  // } else if (p1.shoes1 === p2.shirt1 || p1.shoes1 === p2.pants1) {
+  //   totalSimilarity += 0.25;
+  // }
+
+  return totalSimilarity;
+}
+
+function updateGraphOnFilter() {
+  d3.selectAll(".dataNodeG")
+    .style("opacity", (d) => {
+      return dataFitsFilter(d, d.section) ? 1 : 0.25;
+    });
+
+  d3.selectAll(".link")
+    .style("opacity", (d) => {
+      if (!dataFitsFilter(data[d.target.id]) || !dataFitsFilter(data[d.source.id])) {
+        return 0.1;
+      } else {
+        return 1;
+      }
+    });
+}
+
+function dataFitsFilter(dataPoint) {
   if (filters.Top && filters.Top !== dataPoint.shirt0) {
     return false;
   }
@@ -868,5 +1067,6 @@ function clearFilters() {
 
     drawPies();
     updateClearButton();
+    updateGraphOnFilter();
   }
 }

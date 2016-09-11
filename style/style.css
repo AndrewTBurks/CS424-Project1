@@ -41,6 +41,11 @@ body {
   stroke-width: 0.5;
 }
 
+.link {
+  /*stroke: #C5C5D5;*/
+  stroke: black;
+}
+
 /*******************
     d3-tip style
 ********************/
