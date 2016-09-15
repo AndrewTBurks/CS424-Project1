@@ -19,7 +19,7 @@ svg.attr("width", WIDTH)
     .attr("height", HEIGHT);
 
 let margin = {
-  top: 25,
+  top: 35,
   bottom: 25,
   left: 25,
   right: 25
@@ -205,8 +205,44 @@ let tip = d3.tip ? d3.tip().attr('class', 'd3-tip')
     alert("! d3.tip MISSING ! \nDo you have an internet connection?");
   };
 
+/* Initialize tooltip for titles */
+let titleTip = d3.tip ? d3.tip().attr('class', 'd3-tip').direction('e')
+  .html(function(d) {
+    return "<span style=color:white;\'>" + d + "</span>";
+  }) :
+  function() {
+    alert("! d3.tip MISSING ! \nDo you have an internet connection?");
+  };
+
+
 /* Invoke the tip in the context of your visualization */
 svg.call(tip);
+svg.call(titleTip);
+
+// create titles with information on hover
+svg.append("text")
+  .text("Primary Colors")
+  .datum("Select a color to filter the graph<br>by that section/color")
+  .attr("x", margin.left + pieDiameter / 2)
+  .attr("y", margin.top - 13)
+  .style("text-anchor", "middle")
+  .style("text-decoration", "underline")
+  .style("font-weight", "bold")
+  .style("fill", "#2CA8D1")
+  .on("mouseover", titleTip.show)
+  .on("mouseout", titleTip.hide);
+
+svg.append("text")
+  .text("Outfit Glyphs")
+  .datum("Top, Bottom, and Shoes glyphs<br>for Outfit data collected")
+  .attr("x", margin.left * 3 + pieDiameter)
+  .attr("y", margin.top - 13)
+  .style("text-anchor", "left")
+  .style("text-decoration", "underline")
+  .style("font-weight", "bold")
+  .style("fill", "#2CA8D1")
+  .on("mouseover", titleTip.show)
+  .on("mouseout", titleTip.hide);
 
 readData();
 
